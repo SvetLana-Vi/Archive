@@ -89,6 +89,18 @@ function createMessage(msg){
         div.appendChild(img);
     }
 
+    /* --- видео --- */
+    if (msg.type === 'video'){
+        const videoWrapper = document.createElement('div');
+        videoWrapper.className = 'msg-video-wrapper';
+        videoWrapper.innerHTML = `
+            <video src="${msg.src}" class="msg-video" preload="metadata"></video>
+            <div class="msg-video-overlay">▶ СМОТРЕТЬ ВИДЕО</div>
+        `;
+        videoWrapper.addEventListener('click', () => openVideoModal(msg.src));
+        div.appendChild(videoWrapper);
+    }
+
     /* --- текст --- */
     if (msg.text){
         const text = document.createElement('span');
@@ -376,6 +388,32 @@ soundBtn.addEventListener('click', () => {
     }
 });
 
+function openVideoModal(src){
+    openModal(`
+        <div style="padding: 10px; text-align: center;">
+            <div class="modal-label" style="margin-bottom: 10px;">ВОСПРОИЗВЕДЕНИЕ ЗАПИСИ</div>
+            <video src="${src}" controls autoplay style="width: 100%; border-radius: 4px; border: 1px solid var(--line); box-shadow: 0 0 20px rgba(255,43,61,0.2);"></video>
+        </div>
+    `);
+}
+
+function openVideoModal(src){
+    openModal(`
+        <div style="padding: 10px; text-align: center;">
+            <div class="modal-label" style="margin-bottom: 10px;">ВОСПРОИЗВЕДЕНИЕ ЗАПИСИ</div>
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                <video src="${src}" controls autoplay style="
+                    max-width: 100%; 
+                    max-height: 70vh; 
+                    object-fit: contain; 
+                    border-radius: 4px; 
+                    border: 1px solid var(--line); 
+                    box-shadow: 0 0 20px rgba(255,43,61,0.2);
+                "></video>
+            </div>
+        </div>
+    `);
+}
 /* ============================================================
    СТАРТ
    ============================================================ */
