@@ -1,853 +1,143 @@
-/* Подключение шрифтов */
-@font-face {
-    font-family: 'Sol Kol';
-    src: url('fonts/SolKol.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'Oprah';
-    src: url('fonts/Oprah.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
+/* ============================================================
+   СПИСОК ВСЕХ ПЕРЕПИСОК
+   chatName — необязательно, показывается в шапке чата
+   ============================================================ */
+const STORIES = [
+    { id:"tektek",        title:"ТЭК ТЭК идет за мной",        date:"06.05.2022", chatName:"Anonym" },
+    { id:"privorot",      title:"Делаю Приворот",              date:"13.05.2022", chatName:"Динка" },
+    { id:"camp",          title:"Ночь ужасов в лагере",        date:"26.05.2022" },
+    { id:"school",        title:"Закрытая школа",              date:"23.06.2022" },
+    { id:"dontsleep",     title:"Не спи",                      date:"01.08.2022" },
+    { id:"abandoned",     title:"Заброшенный дом",             date:"29.08.2022" },
+    { id:"santa",         title:"Деревня Санты",               date:"06.12.2022" },
+    { id:"sister",        title:"Пропавшая сестра",            date:"20.01.2023" },
+    { id:"ghostcity",     title:"Город призрак",               date:"10.02.2023" },
+    { id:"witch",         title:"Месть ведьмы",                date:"06.04.2023" },
+    { id:"abandonedcity", title:"Заброшенный город",           date:"25.07.2023" },
+    { id:"santacamp",     title:"Лагерь Санты",                date:"12.12.2023" },
+    { id:"friendrevenge", title:"Месть подруги",               date:"27.01.2024" },
+    { id:"smilers",       title:"Улыбающиеся",                 date:"23.02.2024" },
+    { id:"darkwaters",    title:"Лагерь темные воды",          date:"18.06.2024" },
+    { id:"willow",        title:"Зов Уиллоу-Крика",            date:"04.10.2024" },
+    { id:"darkxmas1",     title:"Темное рождество (1 сезон)",  date:"06.12.2024" },
+    { id:"empty",         title:"Пустые",                      date:"08.03.2025" },
+    { id:"foresthouse",   title:"Дом за лесом",                date:"12.08.2025" },
+    { id:"darkxmas2",     title:"Темное рождество (2 сезон)",  date:"30.12.2025" },
+    { id:"foresthouse2",  title:"Дом за лесом (2 сезон)",      date:"20.05.2026" }
+];
 
-:root{
-    --bg:      #07070a;
-    --panel:   #0e0e13;
-    --panel-2: #14141b;
-    --line:    #23232c;
-    --text:    #c6c6ce;
-    --dim:     #6b6b78;
-    --red:     #ff2b3d;
-    --red-dk:  #8d0f1b;
-    --cyan:    #4be0d0;
-    --violet:  #9b59ff;
-}
-*{ margin:0; padding:0; box-sizing:border-box; }
-html{ scroll-behavior:smooth; }
-body{
-    min-height:100vh;
-    background:radial-gradient(ellipse at 50% -10%, #17171f 0%, transparent 60%), var(--bg);
-    color:var(--text);
-    font-family: 'Oprah', 'Courier New', monospace, 
-                 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-    font-size:15px; line-height:1.6;
-    overflow-x:hidden; position:relative;
-}
-::selection{ background:var(--red); color:#000; }
+/* ============================================================
+   ПЕРСОНАЖИ
+   ============================================================ */
+const CHARACTERS = {
 
-/* фоновые слои */
-.noise{
-    position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.055;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    animation:noiseShift .35s steps(3) infinite;
-}
-@keyframes noiseShift{
-    0%{transform:translate(0,0)} 33%{transform:translate(-3px,2px)}
-    66%{transform:translate(2px,-3px)} 100%{transform:translate(0,0)}
-}
-.vignette{
-    position:fixed; inset:0; z-index:2; pointer-events:none;
-    background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85) 100%);
-}
-.scanline{
-    position:fixed; left:0; right:0; height:2px; z-index:3; pointer-events:none;
-    background:linear-gradient(90deg, transparent, rgba(255,43,61,.45), transparent);
-    animation:scan 9s linear infinite;
-}
-@keyframes scan{
-    0%{top:-5%;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{top:105%;opacity:0}
-}
+    tektek: [
+        {
+            id: 'RTM-001',
+            name: 'Елена Райтман',
+            role: 'Участница · Жертва обстоятельств',
+            avatarUrl: 'Foto/tektek/lena.jpg',
+            desc: 'Лена – обычная девушка, которая внезапно оказалась в замкнутом пространстве (поезде) с незнакомцем. Она не верит в мистику и пытается искать рациональное объяснение всему происходящему, но её главное оружие – защитная ирония. Когда Лене по-настоящему страшно или она в замешательстве, она начинает прятаться за сарказмом и смайликами.<br><br>Она эмоциональна, быстро выходит из себя, когда её пытаются запугать, но при этом легко поддаётся панике. Больше всего Лена не любит, когда её ставят перед выбором, и ненавидит, когда кто-то пытается ею манипулировать. В финале она, устав от противоречий, выбирает самый простой (и, как оказалось, фатальный) путь – возвращается в поезд, чтобы избавиться от обоих спорщиков.',
+            info: [
+                { label: 'Дата рождения',   value: 'Засекречено' },
+                { label: 'Возраст',         value: 'Засекречено' },
+                { label: 'Пол',             value: 'Женский' },
+                { label: 'Роль',            value: 'Жертва / Случайный попутчик' },
+                { label: 'Местонахождение', value: 'неизвестно' },
+                { label: 'Особенность',     value: 'Склонность к защитному сарказму' }
+            ],
+            note: 'Несмотря на страх, сохраняет критическое мышление. Именно она замечает странности в поведении собеседника и отказывается слепо следовать за ним в лес ночью. Её фраза «Я вообще никому доверять не хочу» – ключевая.',
+            status: 'Забрана Тэк Тэк',
+            statusClass: ''
+        },
+        {
+            id: 'RTM-002',
+            name: 'Аноним',
+            role: 'Неизвестный собеседник',
+            avatarUrl: 'Foto/tektek/anonim.jpg',
+            desc: 'Странный тип с маниакальной потребностью контролировать ситуацию. Представляется «новым соседом», хотя они находятся в поезде, и наотрез отказывается называть свое имя. Обладает колоссальными, пугающими знаниями о местной легенде и о том, как выжить.<br><br>Аноним ведет себя как классический газлайтер: сначала он пугает Лену звуками и шагами, заставляет её замолчать, а затем предлагает свою защиту. Его мотивация до конца не ясна. Он отчаянно пытается увести Лену из поезда, утверждая, что конечная остановка – это ловушка. При этом его методы (крики «Тихо!», запреты разговаривать с Юсей) больше похожи на панику загнанного в угол человека, который знает больше, чем говорит.',
+            info: [
+                { label: 'Настоящее имя',   value: 'Неизвестно' },
+                { label: 'Дата рождения',   value: 'Засекречено' },
+                { label: 'Возраст',         value: 'Засекречено' },
+                { label: 'Пол',             value: 'Мужской' },
+                { label: 'Роль',            value: '«Защитник» / Проводник' },
+                { label: 'Местонахождение', value: 'неизвестно' }
+            ],
+            note: 'Утверждает, что знает о твари всё. У него есть четкий план: бежать в лес. Но почему он так боится поезда? И почему он изначально притворялся, что ничего не знает? Возможно, он сам – часть этого кошмара, играющая свою роль.',
+            status: 'Судьба неизвестна',
+            statusClass: 'unknown'
+        },
+        {
+            id: 'RTM-003',
+            name: 'Юся (Тэк Тэк)',
+            role: 'Пожилая женщина · Монстр · Манипулятор',
+            avatarUrl: 'Foto/tektek/tek.jpg',
+            desc: 'Блестящий хищник, использующий психологию жертвы против неё самой. Зная, что Лена напугана и не доверяет Анониму, Юся надевает маску «доброй бабушки», которая «многое повидала». Она не угрожает напрямую, а действует мягко и укоризненно.<br><br>Юся играет на контрасте: пока Аноним кричит и приказывает, она спокойно советует «оглянуться» и «идти назад в поезд». Её главная цель – заставить Лену добровольно вернуться в ловушку, выставив Анонима монстром. Она мастерски переворачивает факты, заявляя, что в лес ведет именно он.',
+            info: [
+                { label: 'Настоящее имя',   value: 'Тэк Тэк' },
+                { label: 'Дата рождения',   value: 'Засекречено' },
+                { label: 'Возраст',         value: 'Засекречено' },
+                { label: 'Природа',         value: 'Сверхъестественное существо' },
+                { label: 'Место охоты',     value: 'Психологическое давление / Маска жертвы' },
+                { label: 'Периодичность',   value: 'Раз в 10 лет' }
+            ],
+            note: 'Её главный шедевр манипуляции – фраза «Умная девочка», когда Лена говорит, что никому не доверяет. Юся поощряет паранойю Лены, чтобы та осталась одна. Когда Лена делает выбор в пользу поезда, Юся сбрасывает маску, раскрывая свою истинную, жестокую сущность.',
+            status: 'Активна / Цель достигнута',
+            statusClass: 'alive'
+        }
+    ],
 
-.wrap{ position:relative; z-index:4; max-width:1040px; margin:0 auto; padding:0 20px 80px; }
+        privorot: [
+        {
+            id: 'RTM-004',
+            name: 'Елена Райтман',
+            role: 'Участница · Скептик · Случайная сообщница',
+            avatarUrl: 'Foto/DelayPrivarot/lena.png',
+            desc: 'Голос разума в этом чате, который, к сожалению, никто не слушает. Лена – циничная, саркастичная и очень приземленная девушка. Она не верит в духов, высмеивает привороты и всячески пытается избежать втягивания в чужие проблемы. Она прямо говорит, что не хочет дружить с Динкой и не горит желанием идти на кладбище ночью.<br><br>Ее главное оружие – это защитный сарказм и дистанцирование. Фразой «Не ВЫ, а ОНА» она пытается перевести стрелки на подругу перед лицом потусторонних сил. Несмотря на внешний скептицизм, Лена обладает хорошей наблюдательностью (именно она замечает призрака на фото), но ее фатальная ошибка – пассивность. Она пошла на кладбище за компанию, участвовала в ритуале и в итоге была предана Динкой, оставшись один на один с проклятием.',
+            info: [
+                { label: 'Возраст',                 value: 'Засекречено' },
+                { label: 'Пол',                     value: 'Женский' },
+                { label: 'Роль',                    value: 'Свидетель / Жертва обстоятельств / Саркастичный голос разума' },
+                { label: 'Отношение к мистике',     value: 'Крайне скептическое (до момента вызова духа)' }
+            ],
+            note: 'Лена не принимала ключевых решений, но пострадала из-за глупости подруги. В конце Динка перекладывает вину на Лену, и Мэриса приходит по ее душу. Цитата: «Такси и сваливать отсюда».',
+            status: 'В зоне риска / Цель Мэрисы',
+            statusClass: ''
+        },
+        {
+            id: 'RTM-005',
+            name: 'Динка',
+            role: 'Инициатор ритуала · Одержимая · "Лучшая подруга"',
+            avatarUrl: 'Foto/DelayPrivarot/Dinka.jpg', 
+            desc: 'Токсичная, эгоистичная и ослепленная идеей любви девушка. Динка не остановится ни перед чем: она готова тащить подругу на кладбище ночью, покупать сырое сердце в мясном и срезать волосы с одноклассника. Она полностью игнорирует доводы разума и логику, упиваясь собственной романтизированной трагедией.<br><br>После исполнения желания ее жизнь превращается в ад, но она даже в этом умудряется обвинить Лену. Динка – настоящий мастер манипуляций и перекладывания ответственности. Когда последствия приворота становятся невыносимыми, она трусливо разрывает дружбу с Леной, чтобы “отомстить” ей, тем самым нарушая условия сделки с духом и подставляя бывшую подругу.',
+               info: [
+                { label: 'Возраст',             value: 'Засекречено' },
+                { label: 'Пол',                 value: 'Женский' },
+                { label: 'Роль',                value: 'Инициатор / Провокатор / Токсичный друг' },
+                { label: 'Объект одержимости',  value: 'Саша (одноклассник)' },
+                { label: 'Последствия',         value: 'Исчезновение всех бывших парней' }
+            ],
+            note: 'Сделка с Мэрисой имеет четкую цену: если Динка расстанется с Сашей, он перейдет к Мэрисе. Вместо того чтобы смириться, Динка бросает парней одного за другим, создавая аномальную зону. А разрыв дружбы с Леной — это попытка переписать контракт задним числом. Цитата: «А это значит, что Мэриса скоро придет за тобой».',
+            status: 'Жива, но проклята',
+            statusClass: 'unknown'
+        },
+        {
+            id: 'RTM-006',
+            name: 'Мэриса',
+            role: 'Древний дух · Создательница приворота · Сущность',
+            avatarUrl: 'Foto/DelayPrivarot/Merisa.jpg', 
+            desc: 'Древняя и крайне обидчивая сущность. При жизни была девушкой, которую отвергли, из-за чего она создала первый в истории приворот. Мэриса невероятно тщеславна и не терпит неуважения (мгновенно обижается на Лену и отказывается говорить).<br><br>Она работает как джинн из сказки: исполняет желание буквально, но с извращенной логикой. Мэриса дарит «любовь», которая превращается в одержимость и домашнее насилие. Она требует четкого соблюдения правил (если расстались – парень становится ее собственностью). Ее появление сопровождается жуткими стишками, а ее цель – забирать тех, кто оказывается достаточно глуп, чтобы влезть в ее дела.',
+            info: [
+                { label: 'Возраст',             value: 'Засекречено' },
+                { label: 'Природа',             value: 'Потусторонняя сущность / Дух' },
+                { label: 'Метод воздействия',   value: 'Ритуалы с мясом / Одержимость / Проклятия' },
+                { label: 'Особенность',         value: 'Говорит загадками и стихами' }
+            ],
+            note: 'Мэриса – не просто злая ведьма, она – искаженное отражение человеческих желаний. Динка хотела, чтобы Саша принадлежал ей – Мэриса сделала его рабом. Динка захотела избавиться от него – Мэриса забрала его и стала мстить. В финале она приходит за Леной. Цитата: «Где бы ты ни находился, как от нас бы ты ни скрылся – не исчезнешь никуда, мы найдем тебя всегда…»',
+            status: 'Активна / охотится',
+            statusClass: 'alive'
+        }
+    ]
 
-/* ШАПКА */
-header{
-    padding:56px 0 24px; text-align:center;
-    border-bottom:1px solid var(--line); margin-bottom:26px;
-}
-.case-id{
-    font-size:11px; letter-spacing:4px; color:var(--dim);
-    text-transform:uppercase; margin-bottom:14px;
-}
-.case-id span{ color:var(--red); }
-h1{
-    font-size:clamp(26px,5.2vw,46px); font-weight:700;
-    letter-spacing:5px; text-transform:uppercase; color:#e9e9ef; line-height:1.15;
-}
-.glitch{ position:relative; display:inline-block; }
-.glitch::before,.glitch::after{
-    content:attr(data-text); position:absolute; left:0; top:0; width:100%; overflow:hidden;
-}
-.glitch::before{
-    color:var(--red); clip-path:inset(0 0 62% 0);
-    animation:glitchA 4s infinite linear alternate-reverse;
-}
-.glitch::after{
-    color:var(--cyan); clip-path:inset(62% 0 0 0);
-    animation:glitchB 3.4s infinite linear alternate-reverse;
-}
-@keyframes glitchA{
-    0%,88%,100%{transform:translate(0,0);opacity:0}
-    89%{transform:translate(-3px,-2px);opacity:.9}
-    92%{transform:translate(3px,1px);opacity:.9}
-    95%{transform:translate(-1px,2px);opacity:.9}
-}
-@keyframes glitchB{
-    0%,90%,100%{transform:translate(0,0);opacity:0}
-    91%{transform:translate(3px,2px);opacity:.85}
-    94%{transform:translate(-3px,-1px);opacity:.85}
-}
-.subtitle{
-    margin-top:14px; font-size:12px; letter-spacing:3px;
-    color:var(--dim); text-transform:uppercase;
-}
-.subtitle .dot{
-    display:inline-block; width:7px; height:7px; border-radius:50%;
-    background:var(--red); margin-right:8px; vertical-align:middle;
-    box-shadow:0 0 10px var(--red); animation:pulse 1.8s infinite;
-}
-@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.2} }
-
-/* ТАБЫ */
-nav.tabs{
-    display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:34px;
-}
-.tab{
-    background:transparent; border:1px solid var(--line); color:var(--dim);
-    font-family:inherit; font-size:12px; letter-spacing:2px; text-transform:uppercase;
-    padding:10px 20px; cursor:pointer; transition:.22s;
-}
-.tab:hover{ color:var(--text); border-color:#3a3a48; }
-.tab.active{
-    color:#fff; border-color:var(--red); background:rgba(255,43,61,.07);
-    box-shadow:0 0 18px rgba(255,43,61,.15) inset;
-}
-
-/* ПАНЕЛИ */
-.panel{ display:none; }
-.panel.active{ display:block; animation:fadeUp .45s ease-out; }
-@keyframes fadeUp{
-    from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)}
-}
-.section-title{
-    font-size:13px; letter-spacing:4px; text-transform:uppercase;
-    color:var(--red); margin-bottom:22px; padding-bottom:10px;
-    border-bottom:1px dashed var(--line);
-}
-.section-title::before{ content:"// "; color:var(--dim); }
-
-/* ДОСЬЕ / ГЛАВНАЯ */
-.warning{
-    border:1px solid var(--red-dk); background:rgba(255,43,61,.05);
-    padding:16px 20px; font-size:13px; color:#e3b6ba; letter-spacing:.5px;
-    margin-bottom:26px; position:relative;
-}
-.warning::before{
-    content:"⚠"; position:absolute; right:16px; top:50%; transform:translateY(-50%);
-    font-size:26px; opacity:.25; color:var(--red);
-}
-.lead{ font-size:15px; color:#a9a9b4; margin-bottom:20px; max-width:70ch; }
-.lead b{ color:#e9e9ef; }
-
-.info-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:12px; margin-top:26px;
-}
-.info-card{ border:1px solid var(--line); background:var(--panel); padding:16px; }
-.info-card .k{
-    font-size:10px; letter-spacing:2px; text-transform:uppercase;
-    color:var(--dim); margin-bottom:6px;
-}
-.info-card .v{ font-size:17px; color:#e9e9ef; word-break:break-all; }
-.info-card .v.red{ color:var(--red); }
-.info-card .v a{ color:var(--red); text-decoration:none; }
-.info-card .v a:hover{ text-decoration:underline; }
-
-/* ПЕРСОНАЖИ: сетка карточек */
-.char-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px;
-}
-.char-story-card{
-    text-align:left; background:var(--panel); border:1px solid var(--line);
-    padding:18px; cursor:pointer; font-family:inherit; color:var(--text);
-    transition:.22s;
-}
-.char-story-card:hover{
-    border-color:#3a3a48; background:var(--panel-2); transform:translateY(-2px);
-}
-.char-story-card .csc-title{ font-size:15px; color:#e9e9ef; margin-bottom:6px; }
-.char-story-card .csc-date{ font-size:11px; color:var(--dim); letter-spacing:1.5px; }
-.char-story-card .csc-hint{
-    margin-top:10px; font-size:10px; color:var(--red);
-    letter-spacing:2px; text-transform:uppercase;
-}
-
-.back-btn{
-    background:transparent; border:1px solid var(--line); color:var(--dim);
-    font-family:inherit; font-size:11px; letter-spacing:2px;
-    padding:10px 16px; cursor:pointer; margin:0 8px 18px 0; transition:.2s;
-}
-.back-btn:hover{ color:var(--text); border-color:#3a3a48; }
-.back-btn.accent{ border-color:var(--red-dk); color:var(--red); }
-.back-btn.accent:hover{
-    background:rgba(255,43,61,.07);
-    box-shadow:0 0 14px rgba(255,43,61,.15);
-}
-
-.char-detail-head{ margin-bottom:20px; }
-.char-detail-head h3{
-    font-size:20px; letter-spacing:2px; text-transform:uppercase;
-    color:#e9e9ef; margin-bottom:6px;
-}
-.char-detail-head div{
-    font-size:12px; color:var(--dim); letter-spacing:2px;
-}
-
-.char{
-    background:var(--panel); border:1px solid var(--line);
-    padding:20px; position:relative; transition:.25s; overflow:hidden;
-    cursor:pointer;
-}
-.char::after{
-    content:""; position:absolute; left:0; top:0; bottom:0; width:2px;
-    background:var(--red); opacity:0; transition:.25s;
-}
-.char:hover{ border-color:#3a3a48; transform:translateY(-3px); background:var(--panel-2); }
-.char:hover::after{ opacity:1; }
-.char .avatar{
-    width:72px; height:72px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size:26px; font-weight:700;
-    border:1px solid var(--line); background:#1a1a22; color:var(--red);
-    margin-bottom:16px; overflow:hidden;
-    transition:.3s;
-}
-.char .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-.char .avatar:has(img){
-    border-color:var(--red-dk);
-    box-shadow:0 0 20px rgba(255,43,61,.25);
-}
-.char:hover .avatar{ transform:scale(1.04); }
-.char h3{
-    font-size:16px; letter-spacing:2px; text-transform:uppercase;
-    color:#e9e9ef; margin-bottom:4px;
-}
-.char .role{
-    font-size:11px; letter-spacing:2px; text-transform:uppercase;
-    color:var(--dim); margin-bottom:12px;
-}
-.char p{
-    font-size:13px; color:#9c9caa;
-    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
-}
-.char .status{
-    margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);
-    font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--red);
-}
-.char .status.alive{ color:var(--cyan); }
-.char .status.unknown{ color:var(--violet); }
-.char.locked .avatar{ animation:pulse 2s infinite; }
-
-/* ============ МОДАЛКА / ДОСЬЕ ============ */
-.modal{
-    display:none; position:fixed; inset:0; z-index:100;
-    background:rgba(0,0,0,.88); backdrop-filter:blur(6px);
-    align-items:center; justify-content:center; padding:20px;
-}
-.modal.active{ display:flex; animation:fadeUp .25s ease-out; }
-.modal-box{
-    background:var(--panel-2); border:1px solid var(--line);
-    padding:0; max-width:620px; width:100%;
-    max-height:92vh; overflow-y:auto;
-    position:relative;
-    box-shadow:0 0 60px rgba(0,0,0,.6), 0 0 30px rgba(255,43,61,.08);
-}
-.modal-box::-webkit-scrollbar{ width:6px; }
-.modal-box::-webkit-scrollbar-track{ background:#0b0b10; }
-.modal-box::-webkit-scrollbar-thumb{ background:#2a2a36; }
-.modal-box::-webkit-scrollbar-thumb:hover{ background:var(--red-dk); }
-.modal-close{
-    position:absolute; top:12px; right:14px; z-index:3;
-    background:rgba(0,0,0,.5); border:1px solid var(--line);
-    color:var(--dim); width:34px; height:34px; border-radius:50%;
-    font-size:20px; cursor:pointer; line-height:1;
-    transition:.2s;
-}
-.modal-close:hover{ color:var(--red); border-color:var(--red-dk); }
-
-.modal-label{
-    font-size:10px; letter-spacing:3px; color:var(--dim);
-    text-transform:uppercase; margin-bottom:18px;
-}
-.modal-lock{ font-size:52px; margin-bottom:14px; opacity:.5; }
-.modal-box h3{
-    font-size:16px; letter-spacing:4px; color:var(--red); margin-bottom:14px;
-}
-.modal-box > p{ font-size:13px; color:#9c9caa; line-height:1.6; }
-
-/* ---------- ДОСЬЕ (новый дизайн) ---------- */
-.dossier{
-    position:relative;
-    padding:0;
-}
-.dossier::before,
-.dossier::after{
-    content:""; position:absolute; width:18px; height:18px;
-    border:2px solid var(--red); pointer-events:none;
-}
-.dossier::before{
-    top:10px; left:10px; border-right:none; border-bottom:none;
-}
-.dossier::after{
-    bottom:10px; right:10px; border-left:none; border-top:none;
-}
-
-.dossier-head{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 22px;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(90deg, #0b0b10, #12121a);
-    position:relative;
-}
-.dossier-head::after{
-    content:""; position:absolute; left:0; right:0; bottom:-1px; height:1px;
-    background:linear-gradient(90deg, transparent, var(--red-dk), transparent);
-}
-.dossier-file-id{
-    font-size:10px; letter-spacing:3px; color:var(--dim);
-    text-transform:uppercase;
-}
-.dossier-file-id b{ color:var(--red); font-weight:700; }
-.dossier-stamp{
-    display:inline-block;
-    padding:4px 12px;
-    border:2px solid var(--red);
-    color:var(--red);
-    font-size:10px;
-    letter-spacing:3px;
-    font-weight:bold;
-    transform:rotate(-4deg);
-    background:rgba(255,43,61,.10);
-    box-shadow:0 0 14px rgba(255,43,61,.25);
-    text-transform:uppercase;
-}
-
-.dossier-hero{
-    padding:26px 22px 22px;
-    text-align:center;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(255,43,61,.10), transparent 60%),
-        repeating-linear-gradient(0deg, transparent 0 20px, rgba(255,255,255,.012) 20px 21px),
-        repeating-linear-gradient(90deg, transparent 0 20px, rgba(255,255,255,.012) 20px 21px);
-    border-bottom:1px solid var(--line);
-}
-.dossier-avatar{
-    width:120px; height:120px; border-radius:50%;
-    margin:0 auto 16px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:48px; font-weight:700;
-    border:3px solid var(--red-dk);
-    background:#1a1a22; color:var(--red);
-    overflow:hidden;
-    box-shadow:
-        0 0 0 6px rgba(255,43,61,.06),
-        0 0 30px rgba(255,43,61,.30),
-        inset 0 0 20px rgba(255,43,61,.10);
-    position:relative;
-}
-.dossier-avatar::after{
-    content:""; position:absolute; inset:-10px; border-radius:50%;
-    border:1px dashed rgba(255,43,61,.30);
-    animation:spin 25s linear infinite;
-}
-@keyframes spin{ to{ transform:rotate(360deg); } }
-.dossier-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-.dossier-name{
-    font-size:26px; letter-spacing:4px;
-    color:#e9e9ef; margin-bottom:8px;
-    text-transform:uppercase;
-    text-shadow:0 0 20px rgba(255,43,61,.15);
-}
-.dossier-role{
-    font-size:11px; letter-spacing:3px; color:var(--red);
-    text-transform:uppercase;
-    padding:4px 12px;
-    display:inline-block;
-    border:1px solid var(--red-dk);
-    background:rgba(255,43,61,.06);
-}
-
-.dossier-body{ padding:22px; }
-
-.block-label{
-    font-size:10px; letter-spacing:3px;
-    color:var(--dim);
-    margin-bottom:10px;
-    text-transform:uppercase;
-}
-.block-label::before{ content:"// "; color:var(--red); }
-
-.dossier-desc{
-    font-size:13.5px;
-    color:#b0b0bb;
-    line-height:1.7;
-    padding:14px 16px;
-    background:rgba(255,255,255,.02);
-    border-left:2px solid var(--red-dk);
-    margin-bottom:20px;
-    text-align:left;
-}
-
-.dossier-info{
-    display:flex; flex-direction:column;
-    border:1px solid var(--line);
-    margin-bottom:20px;
-}
-.di-row{
-    display:grid; grid-template-columns:1fr 1.1fr;
-    gap:12px;
-    padding:10px 14px;
-    font-size:12.5px;
-    border-bottom:1px solid var(--line);
-    text-align:left;
-    transition:.2s;
-}
-.di-row:last-child{ border-bottom:none; }
-.di-row:nth-child(odd){ background:rgba(255,255,255,.015); }
-.di-row:hover{ background:rgba(255,43,61,.04); }
-.di-k{
-    color:var(--dim);
-    letter-spacing:1px;
-    text-transform:uppercase;
-    font-size:10.5px;
-    align-self:center;
-}
-.di-v{
-    color:#e9e9ef;
-    text-align:right;
-    font-weight:bold;
-    letter-spacing:.5px;
-}
-
-.dossier-note{
-    font-size:12px; color:#c6b6b8; text-align:left;
-    padding:14px 16px;
-    background:rgba(255,43,61,.06);
-    border:1px dashed var(--red-dk);
-    margin-bottom:20px;
-    line-height:1.65;
-    position:relative;
-}
-.dossier-note-label{
-    display:block;
-    font-size:10px;
-    letter-spacing:2.5px;
-    color:var(--red);
-    margin-bottom:8px;
-    font-weight:bold;
-    text-transform:uppercase;
-}
-
-.dossier-status-wrap{
-    text-align:center;
-    padding-top:6px;
-}
-.dossier-status{
-    display:inline-block;
-    padding:10px 22px;
-    font-size:12px; letter-spacing:3px;
-    text-transform:uppercase;
-    font-weight:bold;
-    border:2px solid var(--red);
-    color:var(--red);
-    background:rgba(255,43,61,.08);
-    box-shadow:0 0 20px rgba(255,43,61,.20);
-    position:relative;
-}
-.dossier-status.alive{
-    border-color:var(--cyan); color:var(--cyan);
-    background:rgba(75,224,208,.08);
-    box-shadow:0 0 20px rgba(75,224,208,.20);
-}
-.dossier-status.unknown{
-    border-color:var(--violet); color:var(--violet);
-    background:rgba(155,89,255,.08);
-    box-shadow:0 0 20px rgba(155,89,255,.20);
-}
-
-/* ============ ПЕРЕПИСКИ ============ */
-.chat-layout{
-    display:grid; grid-template-columns:270px 1fr; gap:16px; align-items:start;
-}
-.story-list{
-    display:flex; flex-direction:column; gap:8px;
-    max-height:640px; overflow-y:auto; padding-right:6px;
-}
-.story-list::-webkit-scrollbar{ width:5px; }
-.story-list::-webkit-scrollbar-track{ background:#0b0b10; }
-.story-list::-webkit-scrollbar-thumb{ background:#2a2a36; }
-.story-list::-webkit-scrollbar-thumb:hover{ background:var(--red-dk); }
-
-.story-btn{
-    text-align:left; background:var(--panel); border:1px solid var(--line);
-    border-left:2px solid transparent; color:#9c9caa;
-    font-family:inherit; font-size:13px; padding:12px 14px;
-    cursor:pointer; transition:.2s;
-}
-.story-btn:hover{ background:var(--panel-2); color:#e9e9ef; }
-.story-btn.active{
-    border-left-color:var(--red); background:var(--panel-2); color:#fff;
-}
-.story-btn small{
-    display:block; font-size:10px; letter-spacing:1.5px;
-    color:var(--dim); margin-top:4px;
-}
-
-.chat-box{
-    background:var(--panel); border:1px solid var(--line);
-    display:flex; flex-direction:column; height:640px;
-}
-
-/* ---------- НОВАЯ ШАПКА ЧАТА ---------- */
-.chat-head{
-    padding:16px 18px 14px 22px;
-    background:linear-gradient(90deg, #0b0b10 0%, #12121a 60%, #0b0b10 100%);
-    border-bottom:1px solid var(--line);
-    position:relative;
-}
-.chat-head::before{
-    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
-    background:linear-gradient(180deg, var(--red), rgba(255,43,61,.10));
-}
-.chat-head-top{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:10px;
-}
-.chat-live{
-    display:flex; align-items:center; gap:8px;
-}
-.live-dot{
-    width:8px; height:8px; border-radius:50%;
-    background:var(--red);
-    box-shadow:0 0 10px var(--red);
-    animation:pulse 1.6s infinite;
-}
-.live-label{
-    font-size:9px; letter-spacing:3px;
-    color:var(--red); text-transform:uppercase;
-}
-.chat-date-badge{
-    font-size:10px; letter-spacing:2px;
-    padding:4px 10px;
-    border:1px solid var(--line);
-    color:var(--dim);
-    background:rgba(255,255,255,.02);
-    text-transform:uppercase;
-    white-space:nowrap;
-    position:relative;
-}
-.chat-date-badge::before{
-    content:"▸ "; color:var(--red);
-}
-.chat-title-main{
-    font-size:15px; letter-spacing:2px;
-    color:#e9e9ef; font-weight:700;
-    text-transform:uppercase;
-    margin-bottom:4px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.chat-title-sub{
-    font-size:10px; letter-spacing:2px;
-    color:var(--dim); text-transform:uppercase;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.chat-title-sub::before{
-    content:"◈ "; color:var(--red-dk);
-}
-
-.chat-window{
-    flex:1; overflow-y:auto; padding:18px 16px;
-    display:flex; flex-direction:column; scroll-behavior:smooth;
-}
-.chat-window::-webkit-scrollbar{ width:6px; }
-.chat-window::-webkit-scrollbar-track{ background:#0b0b10; }
-.chat-window::-webkit-scrollbar-thumb{ background:#2a2a36; }
-.chat-window::-webkit-scrollbar-thumb:hover{ background:var(--red-dk); }
-
-/* ---------- СООБЩЕНИЯ ---------- */
-.message{
-    max-width:78%; padding:10px 14px 8px;
-    margin-bottom:8px;
-    font-size:14px; line-height:1.5;
-    background:#15151d; border-radius:6px;
-    animation:msgIn .32s ease-out both;
-    word-wrap:break-word;
-}
-@keyframes msgIn{
-    from{ opacity:0; transform:translateY(8px); }
-    to  { opacity:1; transform:translateY(0); }
-}
-
-/* Лена — справа */
-.message.right{
-    align-self:flex-end;
-    border-right:2px solid var(--red);
-    background:linear-gradient(270deg, rgba(255,43,61,.08), #1b1b23 55%);
-    border-radius:6px 6px 6px 12px;
-}
-/* Остальные — слева */
-.message.left{
-    align-self:flex-start;
-    border-left:2px solid #4a4a58;
-    background:#15151d;
-    border-radius:6px 6px 12px 6px;
-}
-/* Юся */
-.message.yusya{
-    border-left-color:var(--violet);
-    background:rgba(155,89,255,.07);
-}
-/* Тэк Тэк */
-.message.tektek{
-    border-left-color:var(--red);
-    background:rgba(255,43,61,.10);
-    box-shadow:0 0 16px rgba(255,43,61,.18);
-}
-
-/* Мэриса */
-.message.merisa{
-    border-left-color: #7b2cbf;
-    background: rgba(123, 44, 191, 0.07);
-}
-.message.merisa .sender{
-    color: #7b2cbf;
-    text-shadow: 0 0 8px rgba(123, 44, 191, 0.6);
-}
-/* ---------- СИСТЕМНЫЕ (как разделители) ---------- */
-.message.system{
-    align-self:stretch;
-    width:100%; max-width:100%;
-    background:transparent;
-    border:none;
-    padding:14px 0 6px;
-    text-align:center;
-    color:var(--dim);
-    font-size:10px;
-    letter-spacing:3px;
-    text-transform:uppercase;
-    position:relative;
-}
-.message.system .text{
-    display:inline-block;
-    padding:3px 14px;
-    position:relative;
-    background:var(--panel);
-}
-.message.system::before{
-    content:"";
-    position:absolute;
-    left:0; right:0; top:50%;
-    height:1px;
-    background:linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent);
-    z-index:0;
-}
-.message.system .text{ z-index:1; }
-.message.system.highlight .text{
-    color:var(--red);
-    border:1px solid var(--red-dk);
-    background:rgba(255,43,61,.08);
-    font-weight:bold;
-    box-shadow:0 0 18px rgba(255,43,61,.20);
-    padding:6px 16px;
-}
-
-/* ---------- СОДЕРЖИМОЕ СООБЩЕНИЯ ---------- */
-.message .sender{
-    display:block;
-    font-size:10px; letter-spacing:2px;
-    text-transform:uppercase;
-    color:#8a8a99;
-    margin-bottom:4px;
-    font-weight:bold;
-}
-.message.right .sender{ color:var(--red); }
-.message.yusya .sender{ color:var(--violet); }
-.message.tektek .sender{
-    color:var(--red);
-    text-shadow:0 0 8px rgba(255,43,61,.6);
-}
-.message .text{ white-space:pre-line; }
-
-/* ---------- ВРЕМЯ (красивый бейдж) ---------- */
-.message .time{
-    display:inline-block;
-    margin-top:8px;
-    float:right;
-    font-size:9px;
-    color:#5a5a68;
-    letter-spacing:1.5px;
-    font-style:italic;
-    padding:2px 8px;
-    border-radius:3px;
-    background:rgba(255,255,255,.02);
-    border:1px solid rgba(255,255,255,.04);
-    clear:both;
-    transition:.25s;
-}
-.message:hover .time{
-    color:var(--red);
-    border-color:var(--red-dk);
-    background:rgba(255,43,61,.06);
-}
-
-/* картинка в сообщении */
-.msg-img{
-    display:block; width:100%; max-width:280px;
-    border-radius:4px; border:1px solid var(--line);
-    margin-bottom:8px; cursor:zoom-in;
-    filter:grayscale(.4) contrast(1.05);
-    transition:.3s;
-}
-.msg-img:hover{ filter:grayscale(0) contrast(1.1); }
-.msg-img-fallback{
-    display:block; padding:14px; text-align:center;
-    border:1px dashed var(--red-dk); color:var(--red);
-    font-size:11px; letter-spacing:2px; text-transform:uppercase;
-    margin-bottom:8px;
-}
-
-.chat-placeholder{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    height:100%; text-align:center; padding:20px;
-}
-.chat-placeholder .ph-title{
-    font-size:12px; letter-spacing:4px; color:var(--red);
-    text-transform:uppercase; margin-bottom:16px;
-}
-.chat-placeholder .ph-sub{
-    font-size:18px; color:#e9e9ef; margin-bottom:6px;
-}
-.chat-placeholder .ph-date{
-    font-size:11px; letter-spacing:2px; color:var(--dim); margin-bottom:22px;
-}
-.chat-placeholder .ph-hint{
-    font-size:12px; color:#6b6b78; max-width:340px; line-height:1.6;
-}
-
-/* МАТЕРИАЛЫ */
-details{
-    background:var(--panel); border:1px solid var(--line);
-    margin-bottom:10px; transition:.2s;
-}
-details[open]{ border-color:#3a3a48; background:var(--panel-2); }
-summary{
-    cursor:pointer; padding:14px 18px; font-size:12px; letter-spacing:2px;
-    text-transform:uppercase; color:#c6c6ce; list-style:none;
-}
-summary::-webkit-details-marker{ display:none; }
-summary::before{ content:"[+]"; color:var(--red); margin-right:12px; font-size:11px; }
-details[open] summary::before{ content:"[-]"; }
-summary:hover{ color:#fff; }
-.doc-body{ padding:4px 20px 20px 46px; font-size:13.5px; color:#9c9caa; }
-.doc-body ol,.doc-body ul{ padding-left:18px; }
-.doc-body li{ margin-bottom:10px; }
-.doc-body li b{ color:#e9e9ef; }
-.doc-body .hl{ color:var(--red); }
-.doc-body a{ color:var(--red); text-decoration:none; }
-.doc-body a:hover{ text-decoration:underline; }
-.doc-img{
-    display:block; max-width:100%; margin-top:12px;
-    border:1px solid var(--line); border-radius:4px;
-    filter:grayscale(.5) contrast(1.05);
-}
-
-footer{
-    margin-top:70px; padding-top:24px; border-top:1px solid var(--line);
-    text-align:center; font-size:11px; letter-spacing:2px;
-    text-transform:uppercase; color:#3f3f4b; position:relative; z-index:4;
-}
-footer span{ color:var(--red-dk); }
-
-.sound-btn{
-    position:fixed; right:18px; bottom:18px; z-index:10;
-    background:var(--panel); border:1px solid var(--line); color:var(--dim);
-    font-family:inherit; font-size:10px; letter-spacing:2px;
-    padding:10px 14px; cursor:pointer; transition:.25s;
-}
-.sound-btn:hover{ color:var(--text); border-color:#3a3a48; }
-.sound-btn.on{
-    color:var(--red); border-color:var(--red-dk);
-    box-shadow:0 0 14px rgba(255,43,61,.2);
-}
-
-/* === ВИДЕО В ЧАТЕ === */
-.msg-video-wrapper {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: 280px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    overflow: hidden;
-    background: #000;
-    transition: .3s;
-}
-.msg-video-wrapper:hover {
-    border-color: var(--red-dk);
-    box-shadow: 0 0 15px rgba(255,43,61,0.2);
-}
-.msg-video {
-    display: block;
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    pointer-events: none; /* Чтобы клик срабатывал на обертку */
-    filter: grayscale(0.6) brightness(0.6);
-    transition: .3s;
-}
-.msg-video-wrapper:hover .msg-video {
-    filter: grayscale(0.2) brightness(0.8);
-}
-.msg-video-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 11px;
-    letter-spacing: 2px;
-    font-weight: bold;
-    text-shadow: 0 0 10px #000, 0 0 5px #000;
-    pointer-events: none;
-}
-
-h1, .section-title, .tab, .case-id, .subtitle, 
-.chat-title-main, .dossier-name, .dossier-file-id, 
-.dossier-stamp, .story-btn, .csc-title, 
-.review-author, .submit-btn {
-     font-family: 'Sol Kol', 'Courier New', monospace, 
-                 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-}
-
-@media (max-width:780px){
-    .chat-layout{ grid-template-columns:1fr; }
-    .story-list{
-        flex-direction:row; overflow-x:auto; overflow-y:hidden;
-        max-height:none; padding-bottom:6px; padding-right:0;
-    }
-    .story-btn{ min-width:200px; flex:0 0 auto; }
-    .chat-box{ height:560px; }
-    header{ padding:36px 0 20px; }
-    .message{ max-width:90%; }
-    .dossier-avatar{ width:96px; height:96px; font-size:38px; }
-    .dossier-name{ font-size:20px; letter-spacing:2px; }
-    .dossier-head{ padding:14px 16px; }
-    .dossier-stamp{ padding:3px 8px; font-size:9px; letter-spacing:2px; }
-    .di-row{ font-size:11.5px; }
-}
+};
