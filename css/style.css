@@ -1,3 +1,17 @@
+/* Подключение шрифтов */
+@font-face {
+    font-family: 'Sol Kol';
+    src: url('fonts/SolKol.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Oprah';
+    src: url('fonts/Oprah.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root{
     --bg:      #07070a;
     --panel:   #0e0e13;
@@ -16,7 +30,8 @@ body{
     min-height:100vh;
     background:radial-gradient(ellipse at 50% -10%, #17171f 0%, transparent 60%), var(--bg);
     color:var(--text);
-    font-family:'Courier New','Consolas',monospace;
+    font-family: 'Oprah', 'Courier New', monospace, 
+                 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
     font-size:15px; line-height:1.6;
     overflow-x:hidden; position:relative;
 }
@@ -810,6 +825,14 @@ footer span{ color:var(--red-dk); }
     font-weight: bold;
     text-shadow: 0 0 10px #000, 0 0 5px #000;
     pointer-events: none;
+}
+
+h1, .section-title, .tab, .case-id, .subtitle, 
+.chat-title-main, .dossier-name, .dossier-file-id, 
+.dossier-stamp, .story-btn, .csc-title, 
+.review-author, .submit-btn {
+     font-family: 'Sol Kol', 'Courier New', monospace, 
+                 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 
 @media (max-width:780px){
