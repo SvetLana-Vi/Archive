@@ -1,5 +1,3 @@
-// js/stories/camp.js
-
 const campStoryData = {
     id: "camp",
     title: "Ночь ужасов в лагере",
