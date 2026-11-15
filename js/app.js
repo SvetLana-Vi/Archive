@@ -80,25 +80,50 @@ function createMessage(msg){
     div.className = 'message ' + (msg.side || 'left');
     if (msg.variant) div.classList.add(msg.variant);
 
+    // --- БЛОК ОТВЕТА НА СООБЩЕНИЕ ---
+    // 1. Создаем объект с цветами (выносим наверх, чтобы использовать дважды)
+    const senderColors = {
+        'Мама': '#20aff1',        
+        'Полина': '#20d15b',      
+        'Макс': '#ffe65cfb',      
+        'Мила': '#ca7514',        
+        'Алик': '#4e31b8',        
+        'Виктория': '#f30cf3',    
+        'Вожатая': '#00ffff',     
+        'Организатор': '#9c32f3' 
+    };
+
+    // 2. Блок ответа на сообщение (Реплай)
+    if (msg.replyTo) {
+        const replyBlock = document.createElement('div');
+        replyBlock.className = 'reply-block';
+        
+        // Определяем цвет для того, на кого отвечают
+        let replyNameColor = '#8a8a99'; // Серый по умолчанию
+        if (msg.replyTo.sender === 'Лена') {
+            replyNameColor = 'var(--red)'; // У Лены всегда красный
+        } else if (senderColors[msg.replyTo.sender]) {
+            replyNameColor = senderColors[msg.replyTo.sender]; // Берем цвет из нашего списка
+        }
+
+        replyBlock.innerHTML = `
+            <span class="reply-sender" style="color: ${replyNameColor}">${msg.replyTo.sender}</span>
+            <span class="reply-text">${msg.replyTo.text}</span>
+        `;
+        div.appendChild(replyBlock);
+    }
+
+    // 3. Главный отправитель сообщения
     const sender = document.createElement('span');
     sender.className = 'sender';
     sender.textContent = msg.sender;
     
-    // ЦВЕТА ПЕРСОНАЖЕЙ
-    const senderColors = {
-        'Мама': '#20aff1',        // Желтый
-        'Полина': '#20d15b',      // Розовый
-        'Макс': '#ffe65cfb',        // Голубой
-        'Мила': '#ca7514',        // Зеленый
-        'Алик': '#4e31b8',        // Бирюзовый
-        'Виктория': '#f30cf3',    // Светло-фиолетовый
-        'Вожатая': '#00ffff',     // Оранжевый
-        'Организатор': '#9c32f3'  // Фиолетовый (как ты просила)
-    };
-    
-    if (senderColors[msg.sender]) {
+    // Применяем цвет к главному отправителю
+    if (msg.sender === 'Лена') {
+        // У Лены цвет задан в CSS (красный)
+    } else if (senderColors[msg.sender]) {
         sender.style.color = senderColors[msg.sender];
-        sender.style.textShadow = '0 0 10px ' + senderColors[msg.sender] + '55'; // Легкое свечение
+        sender.style.textShadow = '0 0 10px ' + senderColors[msg.sender] + '55';
     }
     
     div.appendChild(sender);
