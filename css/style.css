@@ -853,21 +853,67 @@ h1, .section-title, .tab, .case-id, .subtitle,
 .message.location::before,
 .message.location::after {
     content: "";
-    display: inline-block;
+    flex: 1;
     width: 40px;
     height: 1px;
     background: var(--line);
     vertical-align: middle;
     margin: 0 15px;
 }
+.message.location::before,
+.message.location::after {
+    content: "";
+    flex: 1; /* Линии будут растягиваться равномерно */
+    max-width: 40px;
+    height: 1px;
+    background: var(--red-dk);
+    margin: 0 15px;
+}
 .message.location .text {
     font-family: 'Sol Kol', sans-serif;
-    text-shadow: 0 0 12px rgba(255,43,61,.2);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    font-size: 14px;
+    color: var(--text);
+    text-shadow: 0 0 12px rgba(255,43,61,.4);
+    text-align: center;
+    white-space: normal;
 }
-.parts-nav {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
+
+/* Поправка для мобилок */
+@media (max-width: 780px) {
+    .message.location::before,
+    .message.location::after {
+        margin: 0 8px;
+    }
+    .message.location .text {
+        letter-spacing: 3px;
+        font-size: 13px;
+    }
+}
+
+/* ============ ОТВЕТЫ НА СООБЩЕНИЯ (РЕПЛАИ) ============ */
+.reply-block {
+    background: rgba(0,0,0,.25);
+    border-left: 3px solid var(--red);
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #9c9caa;
+    line-height: 1.4;
+}
+.reply-block .reply-sender {
+    color: var(--red);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
+}
+.message.right .reply-block {
+    border-left-color: #4a4a58;
+}
+.message.right .reply-block .reply-sender {
+    color: #8a8a99;
 }
 .part-btn {
     background: rgba(255,255,255,.02);
