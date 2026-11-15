@@ -1,3 +1,4 @@
+/* Подключение шрифтов */
 @font-face {
     font-family: 'Sol Kol';
     src: url('fonts/SolKol.ttf') format('truetype');
@@ -832,6 +833,63 @@ h1, .section-title, .tab, .case-id, .subtitle,
 .review-author, .submit-btn {
      font-family: 'Sol Kol', 'Courier New', monospace, 
                  'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+
+/* ============ ЛОКАЦИИ И ЧАСТИ ============ */
+.message.location {
+    align-self: center;
+    background: transparent;
+    border: none;
+    padding: 20px 0 10px;
+    color: var(--red-dk);
+    font-size: 14px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+}
+.message.location::before,
+.message.location::after {
+    content: "";
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    background: var(--line);
+    vertical-align: middle;
+    margin: 0 15px;
+}
+.message.location .text {
+    font-family: 'Sol Kol', sans-serif;
+    text-shadow: 0 0 12px rgba(255,43,61,.2);
+}
+.parts-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+.part-btn {
+    background: rgba(255,255,255,.02);
+    border: 1px solid var(--line);
+    color: var(--dim);
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: .2s;
+    text-transform: uppercase;
+}
+.part-btn:hover {
+    color: var(--text);
+    border-color: #3a3a48;
+}
+.part-btn.active {
+    color: #fff;
+    border-color: var(--red);
+    background: rgba(255,43,61,.1);
+    box-shadow: 0 0 12px rgba(255,43,61,.2) inset;
 }
 
 @media (max-width:780px){
