@@ -11,12 +11,12 @@ STORIES.forEach(s => {
     };
 });
 
-/* ---------- DOM ---------- */
 const chatStoryList   = document.getElementById('chatStoryList');
 const chatWindow      = document.getElementById('chatWindow');
 const chatStoryTitle  = document.getElementById('chatStoryTitle');
 const chatStoryDate   = document.getElementById('chatStoryDate');
 const chatStorySub    = document.getElementById('chatStorySub');
+const chatPartsNav    = document.getElementById('chatPartsNav');
 
 const charStoriesGrid = document.getElementById('charStoriesGrid');
 const charDetail      = document.getElementById('charDetail');
@@ -35,7 +35,12 @@ const modalClose   = document.getElementById('modalClose');
    ============================================================ */
 function renderChatList(){
     chatStoryList.innerHTML = '';
-    STORIES.forEach(s => {
+    
+    // Собираем все истории (старые + новые)
+    const allStories = [...STORIES];
+    if (typeof campStoryData !== 'undefined') allStories.push(campStoryData);
+
+    allStories.forEach(s => {
         const btn = document.createElement('button');
         btn.className = 'story-btn';
         btn.dataset.id = s.id;
@@ -46,11 +51,21 @@ function renderChatList(){
 }
 
 /* ============================================================
-   СОЗДАНИЕ СООБЩЕНИЙ
+   СООБЩЕНИЯ
    ============================================================ */
 function createMessage(msg){
+    // Локации (Дом, Лагерь и т.д.)
+    if (msg.type === 'location'){
+        const div = document.createElement('div');
+        div.className = 'message location';
+        const span = document.createElement('span');
+        span.className = 'text';
+        span.textContent = msg.text;
+        div.appendChild(span);
+        return div;
+    }
 
-    /* --- системное --- */
+    // Системные
     if (msg.type === 'system'){
         const div = document.createElement('div');
         div.className = 'message system' + (msg.highlight ? ' highlight' : '');
@@ -68,16 +83,33 @@ function createMessage(msg){
     const sender = document.createElement('span');
     sender.className = 'sender';
     sender.textContent = msg.sender;
+    
+    // ЦВЕТА ПЕРСОНАЖЕЙ
+    const senderColors = {
+        'Мама': '#20aff1',        // Желтый
+        'Полина': '#20d15b',      // Розовый
+        'Макс': '#ffe65cfb',        // Голубой
+        'Мила': '#ca7514',        // Зеленый
+        'Алик': '#4e31b8',        // Бирюзовый
+        'Виктория': '#f30cf3',    // Светло-фиолетовый
+        'Вожатая': '#00ffff',     // Оранжевый
+        'Организатор': '#9c32f3'  // Фиолетовый (как ты просила)
+    };
+    
+    if (senderColors[msg.sender]) {
+        sender.style.color = senderColors[msg.sender];
+        sender.style.textShadow = '0 0 10px ' + senderColors[msg.sender] + '55'; // Легкое свечение
+    }
+    
     div.appendChild(sender);
 
-    /* --- картинка --- */
+    // Картинка
     if (msg.type === 'image'){
         const img = document.createElement('img');
         img.className = 'msg-img';
         img.src = msg.src;
         img.alt = msg.text || 'Фото';
         img.loading = 'lazy';
-
         img.addEventListener('error', () => {
             img.remove();
             const fallback = document.createElement('span');
@@ -85,23 +117,9 @@ function createMessage(msg){
             fallback.textContent = '[ФОТО НЕДОСТУПНО]';
             div.insertBefore(fallback, div.querySelector('.text'));
         });
-
         div.appendChild(img);
     }
 
-    /* --- видео --- */
-    if (msg.type === 'video'){
-        const videoWrapper = document.createElement('div');
-        videoWrapper.className = 'msg-video-wrapper';
-        videoWrapper.innerHTML = `
-            <video src="${msg.src}" class="msg-video" preload="metadata"></video>
-            <div class="msg-video-overlay">▶ СМОТРЕТЬ ВИДЕО</div>
-        `;
-        videoWrapper.addEventListener('click', () => openVideoModal(msg.src));
-        div.appendChild(videoWrapper);
-    }
-
-    /* --- текст --- */
     if (msg.text){
         const text = document.createElement('span');
         text.className = 'text';
@@ -109,38 +127,75 @@ function createMessage(msg){
         div.appendChild(text);
     }
 
-    /* --- время --- */
     if (msg.time){
         const time = document.createElement('span');
         time.className = 'time';
         time.textContent = msg.time;
         div.appendChild(time);
     }
-
     return div;
 }
 
 /* ============================================================
-   ЗАГРУЗКА ПЕРЕПИСКИ
+   ЗАГРУЗКА ИСТОРИИ (С ЧАСТЯМИ)
    ============================================================ */
+let currentChatId = null;
+let currentChatPart = 'part1';
+
 function loadStory(id, btn){
-    document.querySelectorAll('#chatStoryList .story-btn')
-        .forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#chatStoryList .story-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
 
-    const story = STORY_DATA[id];
+    // Объединяем данные, чтобы подтянулись настройки частей
+    let story = STORY_DATA[id];
+    if (id === 'camp' && typeof campStoryData !== 'undefined') {
+        story = { ...story, ...campStoryData }; 
+    }
+    
     if (!story) return;
 
-    /* шапка */
+    currentChatId = id;
+    currentChatPart = 'part1'; // Всегда начинаем с первой части
+
     chatStoryTitle.textContent = story.title;
     chatStoryDate.textContent  = 'начата ' + story.date;
-    chatStorySub.textContent   = 'канал: ' + (story.chatName || 'Anonym') + ' · без шифрования';
+    chatStorySub.textContent   = 'чат: ' + (story.chatName || 'Anonym') + ' · без шифрования';
 
+    // Рендер кнопок частей (если их больше 1)
+    chatPartsNav.innerHTML = '';
+    if (story.partsCount && story.partsCount > 1) {
+        for (let i = 1; i <= story.partsCount; i++) {
+            const pBtn = document.createElement('button');
+            pBtn.className = 'part-btn' + (i === 1 ? ' active' : '');
+            pBtn.textContent = 'Часть ' + i;
+            pBtn.onclick = () => {
+                chatPartsNav.querySelectorAll('.part-btn').forEach(b => b.classList.remove('active'));
+                pBtn.classList.add('active');
+                renderChatPart(id, 'part' + i);
+            };
+            chatPartsNav.appendChild(pBtn);
+        }
+    }
+
+    renderChatPart(id, currentChatPart);
+}
+
+function renderChatPart(id, partName) {
+    currentChatPart = partName;
     chatWindow.innerHTML = '';
+    
+    let messages = null;
 
-    if (story.messages && story.messages.length){
+    // Если это новая история (camp) — берем из campChats, иначе из старых CHATS
+    if (id === 'camp' && typeof campChats !== 'undefined') {
+        messages = campChats[partName];
+    } else if (CHATS[id]) {
+        messages = CHATS[id];
+    }
+
+    if (messages && messages.length) {
         const frag = document.createDocumentFragment();
-        story.messages.forEach(msg => frag.appendChild(createMessage(msg)));
+        messages.forEach(msg => frag.appendChild(createMessage(msg)));
         chatWindow.appendChild(frag);
         chatWindow.scrollTop = 0;
     } else {
@@ -148,9 +203,8 @@ function loadStory(id, btn){
         ph.className = 'chat-placeholder';
         ph.innerHTML = `
             <div class="ph-title">// ЗАПИСЬ НЕ ВОССТАНОВЛЕНА</div>
-            <div class="ph-sub">${story.title}</div>
-            <div class="ph-date">Начата: ${story.date}</div>
-            <div class="ph-hint">Текст этой переписки ещё не загружен в архив.<br>Попробуйте позже.</div>
+            <div class="ph-sub">Ожидайте продолжения</div>
+            <div class="ph-hint">Текст этой части переписки ещё не загружен в архив.<br>Попробуйте позже.</div>
         `;
         chatWindow.appendChild(ph);
     }
@@ -161,8 +215,19 @@ function loadStory(id, btn){
    ============================================================ */
 function renderCharStories(){
     charStoriesGrid.innerHTML = '';
-    STORIES.forEach(s => {
-        const hasChars = STORY_DATA[s.id].characters.length > 0;
+    
+    const allStories = [...STORIES];
+    if (typeof campStoryData !== 'undefined') allStories.push(campStoryData);
+
+    allStories.forEach(s => {
+        let chars = [];
+        if (s.id === 'camp' && typeof campCharacters !== 'undefined') {
+            chars = campCharacters;
+        } else if (CHARACTERS[s.id]) {
+            chars = CHARACTERS[s.id];
+        }
+        
+        const hasChars = chars.length > 0;
         const card = document.createElement('button');
         card.className = 'char-story-card';
         card.innerHTML = `
@@ -176,7 +241,7 @@ function renderCharStories(){
 }
 
 function openStoryChars(id){
-    const story = STORY_DATA[id];
+    const story = STORY_DATA[id] || (typeof campStoryData !== 'undefined' && id === 'camp' ? campStoryData : null);
     if (!story) return;
 
     charStoriesGrid.style.display = 'none';
@@ -186,8 +251,15 @@ function openStoryChars(id){
     charDetailDate.textContent  = 'Начата: ' + story.date;
     charList.innerHTML = '';
 
-    if (story.characters.length){
-        story.characters.forEach(ch => {
+    let chars = [];
+    if (id === 'camp' && typeof campCharacters !== 'undefined') {
+        chars = campCharacters;
+    } else if (STORY_DATA[id]) {
+        chars = STORY_DATA[id].characters;
+    }
+
+    if (chars.length){
+        chars.forEach(ch => {
             const card = document.createElement('div');
             card.className = 'char';
             const avatarHtml = ch.avatarUrl
@@ -203,6 +275,19 @@ function openStoryChars(id){
             card.addEventListener('click', () => openCharacterDossier(ch));
             charList.appendChild(card);
         });
+    } else if (id === 'camp') {
+        // Специальная заглушка для незавершенной истории
+        const ph = document.createElement('div');
+        ph.className = 'char locked';
+        ph.style.gridColumn = '1 / -1';
+        ph.innerHTML = `
+            <div class="avatar" style="animation:none; color:var(--red); font-size:32px;">⏳</div>
+            <h3>ПЕРЕПИСКА НЕ ЗАВЕРШЕНА</h3>
+            <div class="role">Досье временно недоступно</div>
+            <p>Страшная переписка «Ночь ужасов в лагере» ещё не закончена. Досье персонажей появятся в архиве после публикации финальной части.</p>
+            <div class="status unknown">ОЖИДАЙТЕ ПРОДОЛЖЕНИЯ</div>
+        `;
+        charList.appendChild(ph);
     } else {
         for (let i = 1; i <= 4; i++){
             const card = document.createElement('div');
@@ -219,7 +304,7 @@ function openStoryChars(id){
         }
     }
 
-    if (story.messages && story.messages.length){
+    if (story.messages || (id === 'camp' && typeof campChats !== 'undefined' && campChats.part1)) {
         readChatBtn.style.display = 'inline-block';
         readChatBtn.onclick = () => {
             activateTab(document.querySelector('.tab[data-target="panel-chats"]'));
@@ -237,7 +322,7 @@ backToStories.addEventListener('click', () => {
 });
 
 /* ============================================================
-   МОДАЛКА
+   МОДАЛКА ДОСЬЕ
    ============================================================ */
 function openModal(html){
     modalContent.innerHTML = html;
@@ -340,80 +425,51 @@ let audioCtx = null;
 let masterGain = null;
 const soundBtn = document.getElementById('soundBtn');
 
-soundBtn.addEventListener('click', () => {
-    if (!audioCtx){
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0;
-        masterGain.connect(audioCtx.destination);
-
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 240;
-        filter.connect(masterGain);
-
-        [55, 55.7, 82.4].forEach(freq => {
-            const osc = audioCtx.createOscillator();
-            osc.type = 'sawtooth';
-            osc.frequency.value = freq;
-            const g = audioCtx.createGain();
-            g.gain.value = 0.05;
-            osc.connect(g);
-            g.connect(filter);
-            osc.start();
-        });
-
-        const lfo = audioCtx.createOscillator();
-        lfo.frequency.value = 0.07;
-        const lfoGain = audioCtx.createGain();
-        lfoGain.gain.value = 90;
-        lfo.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-        lfo.start();
-
-        masterGain.gain.linearRampToValueAtTime(0.10, audioCtx.currentTime + 2);
-        soundBtn.classList.add('on');
-        soundBtn.textContent = 'ЗВУК: ВКЛ';
-        return;
-    }
-
-    if (soundBtn.classList.contains('on')){
-        masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
-        soundBtn.classList.remove('on');
-        soundBtn.textContent = 'ЗВУК: ВЫКЛ';
-    } else {
-        masterGain.gain.linearRampToValueAtTime(0.10, audioCtx.currentTime + 0.6);
-        soundBtn.classList.add('on');
-        soundBtn.textContent = 'ЗВУК: ВКЛ';
-    }
-});
-
-function openVideoModal(src){
-    openModal(`
-        <div style="padding: 10px; text-align: center;">
-            <div class="modal-label" style="margin-bottom: 10px;">ВОСПРОИЗВЕДЕНИЕ ЗАПИСИ</div>
-            <video src="${src}" controls autoplay style="width: 100%; border-radius: 4px; border: 1px solid var(--line); box-shadow: 0 0 20px rgba(255,43,61,0.2);"></video>
-        </div>
-    `);
+if (soundBtn) {
+    soundBtn.addEventListener('click', () => {
+        if (!audioCtx){
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0;
+            masterGain.connect(audioCtx.destination);
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 240;
+            filter.connect(masterGain);
+            [55, 55.7, 82.4].forEach(freq => {
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                const g = audioCtx.createGain();
+                g.gain.value = 0.05;
+                osc.connect(g);
+                g.connect(filter);
+                osc.start();
+            });
+            const lfo = audioCtx.createOscillator();
+            lfo.frequency.value = 0.07;
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 90;
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+            lfo.start();
+            masterGain.gain.linearRampToValueAtTime(0.10, audioCtx.currentTime + 2);
+            soundBtn.classList.add('on');
+            soundBtn.textContent = 'ЗВУК: ВКЛ';
+            return;
+        }
+        if (soundBtn.classList.contains('on')){
+            masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
+            soundBtn.classList.remove('on');
+            soundBtn.textContent = 'ЗВУК: ВЫКЛ';
+        } else {
+            masterGain.gain.linearRampToValueAtTime(0.10, audioCtx.currentTime + 0.6);
+            soundBtn.classList.add('on');
+            soundBtn.textContent = 'ЗВУК: ВКЛ';
+        }
+    });
 }
 
-function openVideoModal(src){
-    openModal(`
-        <div style="padding: 10px; text-align: center;">
-            <div class="modal-label" style="margin-bottom: 10px;">ВОСПРОИЗВЕДЕНИЕ ЗАПИСИ</div>
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
-                <video src="${src}" controls autoplay style="
-                    max-width: 100%; 
-                    max-height: 70vh; 
-                    object-fit: contain; 
-                    border-radius: 4px; 
-                    border: 1px solid var(--line); 
-                    box-shadow: 0 0 20px rgba(255,43,61,0.2);
-                "></video>
-            </div>
-        </div>
-    `);
-}
 /* ============================================================
    СТАРТ
    ============================================================ */
